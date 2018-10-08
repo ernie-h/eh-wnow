@@ -9,4 +9,4 @@ Its also color coded :smile: !
 Image of command: 
 ![alt text][logo]
 
-[logo]: https://github.com/ernie-h/eh-wnow/wnowShot.png "Screenshot of command"
+[logo]: https://github.com/ernie-h/eh-wnow/blob/master/wnowShot.png "Screenshot of command"
