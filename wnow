@@ -1,0 +1,135 @@
+#!/bin/bash
+# I GIVE PERMISSION TO POST THIS ON THE PIAZZA BOARD
+# -------------------------- WEATHER NOW --------------------------
+# =================== PURPOSE ===================: 
+# Hi! Welcome to Weather Now, a script that fetches for current weather
+# data in Boston and displays it to you in a User-Friendly way.
+# Sometimes while indoors working on terminal, I would like to know the weather without
+# having to leave my screen. Weather Now solves that by giving you a quick 
+# weather report based on the openweather.org api.
+
+# =================== RUNNING SCRIPT ===================
+# In order to run this script, simply type the command `sh myScript.sh`
+# You will then see a description of current Boston weather displaying temperature in farenheit,
+# weather description, humidity, cloudiness, and windiness
+
+# =================== API ===================
+# For the API, I pinged the openweather.org api, which is a free to use public API that returns
+# current weather data. The API url is:
+
+# 'http://api.openweathermap.org/data/2.5/forecast?id=4930956&units=imperial&APPID=58838f82fc3466a0c45887926ac95f74'
+
+# The main components are:
+#	id=4930956: This is the city_id for BOSTON, and only returns data from BOSTON
+#	APPID: The API key I signed up for with openweather to be authorized to make requests 
+#	units=imperial: This sets the temperature to be returned as farenheit 
+
+# In order to actually request the data from the command line I used:
+
+#	curl -s -XGET $api_url
+
+# This curl command simply sends a GET request to the specified api_url that retrieves JSON
+# data from that URL and returns it through the system input.
+
+# =================== JSON ===================
+# For this assignment I wanted to experiment with querying JSON data through terminal, which I had
+# never done. There were three ways I found on how to parse the data once I made a curl request,
+# 1) Use grep, sed, and awk to parse the response
+# 2) Download jq, a JSON paraser tool that easily allowed for users to parse through data
+# 3) Use Python's JSON library to aid in parsing the response
+# I ultimately went with the third option, given that the first was incredibly time consuming
+# and the second required my users to download an external library. I had never coded in python
+# before but found a simple 1 liner python script to run after a curl request:
+
+#	python -c 'import sys, json; print json.load(sys.stdin)["..."]'
+
+# This command is run right after the curl request. Here's a breakdown:
+
+# =================== EXECTURE PYTHON SCRIPT  ===================
+# 	`python -c`: indicates a python script  is about to execute. 
+
+# =================== PYTHON INLINE SCRIPT  ===================
+
+# 	'import sys, json;' 
+
+# This line simply imports the JSON library that lets us parse out the response and the sys
+# library that lets us read the input after the curl request.
+
+# 	print json.load(sys.stdin)
+
+# This line prints out the system input from the request as a JSON object that we can interact with.
+
+#	["..."]
+
+# After the load we can pass specific attributes or indices to select the datat we want.
+
+# =================== COLORS ===================
+# In order to provide the weather data in a more user-friendly manner, I used the ASCII color
+# codes in the echo commands to provide better highlights for important pieces of data.
+# Heres an example:
+
+#	GREEN='\033[0;32m'
+
+# For green the code is '32m'. Incrementing these values represent different color codes. 
+
+# =================== ECHO =================== 
+# The echo commands print out the values and descriptions to the terminal for the user to see.
+# Here is an example:
+
+#	 echo -e "${RED}Temperature:${NC} ${RED}$temp F ${NC}";
+
+# The -e in echo, allows for the terminal to read the back slashes in the color code.
+# The ${...} subsitutes a specific constant defined in the script into the current String
+
+# =================== DATE ===================
+# The date displays the current date and time in hours, minutes, and seconds. Here is the command:
+
+#	date +"%D %H:%M:%S"
+
+# The % identifiers, identify the unit of time I wish to display. For more information type `man date`
+
+# =================== SHELL SCRIPT ===================
+# CONSTANTS
+api_url='http://api.openweathermap.org/data/2.5/forecast?id=4930956&units=imperial&APPID=58838f82fc3466a0c45887926ac95f74'
+
+# Colors
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
+WHITE='\033[0;37m'
+
+#Fetch current date 
+converted_date=$(date +"%D %H:%M:%S"); 
+
+#Fetch temperature 
+temp=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["main"]["temp"]');
+min_temp=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["main"]["temp_min"]');
+max_temp=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["main"]["temp_max"]');
+
+#Fetch weather description
+weather=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["weather"][0]["main"]');
+weather_desc=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["weather"][0]["description"]');
+
+#Fetch Clouds
+cloud=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["clouds"]["all"]')
+
+#Fetch Humidity
+humidity=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["main"]["humidity"]');
+
+#Fetch Wind
+wind_speed=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["wind"]["speed"]');
+wind_deg=$(curl -s -XGET $api_url | python -c 'import sys, json; print json.load(sys.stdin)["list"][0]["wind"]["deg"]');
+
+
+echo -e "Currently in ${GREEN}BOSTON${NC} on ${BLUE}$converted_date${NC} this is the weather report:";
+echo -e "${RED}Temperature:${NC} ${RED}$temp F ${NC}";
+echo -e "With a minumum of ${RED}$min_temp F ${NC} and a max of ${RED}$max_temp F${NC}";
+echo -e "${BLUE}Weather:${NC} ${BLUE}$weather${NC}";
+echo -e "It is currently $BLUE$weather_desc$NC";
+echo -e "${PURPLE}Humidity:${NC} $humidity%"
+echo -e "${CYAN}Clouds: $cloud% cloudy ${NC}"
+echo -e "${GREEN}Wind: $wind_speed mph${NC}"
+echo -e "Coming from ${GREEN}$wind_deg ˚${NC}"
