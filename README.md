@@ -6,7 +6,7 @@ This will provide the current weather details for Boston in your terminal. It fe
 
 Its also color coded :smile: !
 
-Image of command: 
-![alt text][logo]
+## Image of command: 
+![wnow baby][logo]
 
 [logo]: https://github.com/ernie-h/eh-wnow/blob/master/wnowShot.png "Screenshot of command"
