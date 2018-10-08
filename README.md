@@ -2,7 +2,7 @@
 
 Simply place this script in your `/usr/bin` folder and run `wnow`
 
-This will provide the current weather details for Boston in your terminal. It fetches the most recent data from **www.openweatherapi.org**
+This will provide the current weather details for Boston in your terminal. It fetches the most recent data from **www.openweathermap.org**
 
 Its also color coded :smile: !
 
